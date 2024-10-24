@@ -10,4 +10,5 @@ services:
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
-      - .:/app
+      - .env:/app
+      - ./src:/app
