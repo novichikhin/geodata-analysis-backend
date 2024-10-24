@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  geodata_analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    volumes:
+      - .:/app
