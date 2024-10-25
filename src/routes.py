@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 
 import pandas as pd
 import geopandas as gpd
@@ -16,7 +16,9 @@ router_object = APIRouter()
 
 @router_object.get("/")
 async def get_objects(
-    frames_of_objects: Annotated[gpd.GeoDataFrame, Depends(FramesOfObjectsDepsMarker)],
+    frames_of_objects: Annotated[
+        Dict[str, gpd.GeoDataFrame], Depends(FramesOfObjectsDepsMarker)
+    ],
     client_ip: Annotated[str, Depends(get_client_ip)],
 ):
     return frame_to_json(frames_of_objects[client_ip])
@@ -25,7 +27,9 @@ async def get_objects(
 @router_object.post("/")
 async def create_object(
     new_object: ObjectModel,
-    frames_of_objects: Annotated[gpd.GeoDataFrame, Depends(FramesOfObjectsDepsMarker)],
+    frames_of_objects: Annotated[
+        Dict[str, gpd.GeoDataFrame], Depends(FramesOfObjectsDepsMarker)
+    ],
     client_ip: Annotated[str, Depends(get_client_ip)],
 ):
     new_frame = gpd.GeoDataFrame(
@@ -38,14 +42,18 @@ async def create_object(
         crs="EPSG:4326",
     )
 
-    frames_of_objects[client_ip] = pd.concat([frames_of_objects[client_ip], new_frame])
+    concat_frames = [frames_of_objects[client_ip], new_frame]
+
+    frames_of_objects[client_ip] = pd.concat(concat_frames)  # type: ignore
 
     return frame_to_json(frames_of_objects[client_ip])
 
 
 @router_object.post("/clear", status_code=status.HTTP_204_NO_CONTENT)
 async def clear_objects(
-    frames_of_objects: Annotated[gpd.GeoDataFrame, Depends(FramesOfObjectsDepsMarker)],
+    frames_of_objects: Annotated[
+        Dict[str, gpd.GeoDataFrame], Depends(FramesOfObjectsDepsMarker)
+    ],
     client_ip: Annotated[str, Depends(get_client_ip)],
 ):
     frames_of_objects[client_ip] = gpd.GeoDataFrame()
@@ -56,7 +64,9 @@ async def get_near_objects(
     latitude: Annotated[float, Query()],
     longitude: Annotated[float, Query()],
     distance: Annotated[float, Query()],
-    frames_of_objects: Annotated[gpd.GeoDataFrame, Depends(FramesOfObjectsDepsMarker)],
+    frames_of_objects: Annotated[
+        Dict[str, gpd.GeoDataFrame], Depends(FramesOfObjectsDepsMarker)
+    ],
     client_ip: Annotated[str, Depends(get_client_ip)],
 ):
     current_location_frame = gpd.GeoDataFrame(
