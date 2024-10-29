@@ -72,14 +72,14 @@ async def get_near_objects(
     current_location_frame = gpd.GeoDataFrame(
         geometry=[Point(longitude, latitude)], crs="EPSG:4326"
     )
-    current_location_frame = current_location_frame.to_crs(epsg=3857)
+    current_location_frame = current_location_frame.to_crs(epsg=32646)
 
     client_frame = frames_of_objects[client_ip]
 
     if not client_frame.size:
         return []
 
-    client_frame = client_frame.to_crs(epsg=3857)
+    client_frame = client_frame.to_crs(epsg=32646)
 
     distance_series = client_frame.distance(current_location_frame.geometry[0])
 
