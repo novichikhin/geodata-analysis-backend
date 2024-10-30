@@ -7,11 +7,12 @@ from fastapi import Request
 
 
 async def get_client_ip(request: Request) -> str:
-    forwarded_for = request.headers.get("X-Forwarded-For")
+    client_ip = request.headers.get("CF-Connecting-IP")
 
-    if forwarded_for:
-        client_ip = forwarded_for.split(",")[0].strip()
-    else:
+    if not client_ip:
+        client_ip = request.headers.get("X-Forwarded-For")
+
+    if not client_ip:
         client_ip = request.client.host
 
     return client_ip
